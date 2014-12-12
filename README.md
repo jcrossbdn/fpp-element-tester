@@ -6,28 +6,28 @@ Format of the XML:
 
 \<?xml version="1.0" encoding="utf-8"?\>
 \<SequencerName\>
-  <physical>
-    <outputs>
-      <output 
+  \<physical\>
+    \<outputs\>
+      \<output 
               oid="[unique #]"
               name="[Name of Channel]"
               r="x"   [OPTIONAL where r=red color and x=physical channel output number]
               g="x"   [OPTIONAL where g=green color and x=physical channel output number]
               b="x"   [OPTIONAL where b=blue color and x=physical channel output number]
               w="x"   [OPTIONAL where w=white color and x=physical channel output number]
-      />
-    </outputs>
-  </physical>
+      /\>
+    \</outputs\>
+  \</physical\>
   
-  <groups>
-    <group name="[group name]">
-      <group name="[group name]">
+  \<groups\>
+    \<group name="[group name]"\>
+      \<group name="[group name]"\>
       ...
-        <element name="[Element Name]" oid="[CSV of all physical/outputs that are part of this element]" />
-      </group>
-    </group>
-  </groups>
-</SequencerName>
+        \<element name="[Element Name]" oid="[CSV of all physical/outputs that are part of this element]" /\>
+      \</group\>
+    \</group\>
+  \</groups\>
+\</SequencerName\>
 
 
 Real Example:
