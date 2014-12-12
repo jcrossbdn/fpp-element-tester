@@ -53,12 +53,6 @@ if (count($pathArr)>0) {
 $breadCrumb.="</pre>";
 $out.=$breadCrumb;
 
-//$out.="<script type='text/javascript'>
-//  $(document).ready(function() {
-//    $('body').append('<link rel=\"stylesheet\" type=\"text/css\" href=\"css/fpp-element-tester.css\">')
-//  });
-//</script>
-//";
 $out.="<table border=0>";
 
 foreach ($curLevel as $key1=>$data1) {
@@ -77,10 +71,11 @@ foreach ($curLevel as $key1=>$data1) {
       } 
     
       $out.="<tr><td><a name='".alphanumeric($name)."'></a>$name</td>";
-      if (isset($colors->red->$oid)) $out.="<td>".showColorButton("red", $path, $name, $oidElements['oids'],alphanumeric($name))."</td>"; else $out.="<td></td>";
-      if (isset($colors->green->$oid)) $out.="<td>".showColorButton("green", $path, $name, $oidElements['oids'],alphanumeric($name))."</td>"; else $out.="<td></td>";
-      if (isset($colors->blue->$oid)) $out.="<td>".showColorButton("blue", $path, $name, $oidElements['oids'],alphanumeric($name))."</td>"; else $out.="<td></td>";
-      if (isset($colors->white->$oid)) $out.="<td>".showColorButton("white", $path, $name, $oidElements['oids'],alphanumeric($name))."</td>"; else $out.="<td></td>";
+      if ($colors) {
+        foreach ($colors as $color=>$oid) {
+          if ($colors->$color) $out.="<td>".showColorButton($color, $path, $name, $oidElements['oids'],alphanumeric($name))."</td>"; else $out.="<td></td>";
+        }
+      }
      $out.= "</tr>";
     }
     unset($names);
