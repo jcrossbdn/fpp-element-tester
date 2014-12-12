@@ -38,7 +38,6 @@ Arches/Arch 1  = element named Arch 1 in group Arches
 */
 
 $pathArr=explode("/",$path);
-//$out.="<pre>Path: ".print_r($path,true)."</pre>";
 $breadCrumb="<pre><a href='#' onclick=\"getElements('$pluginBaseURL&fetPath='); return false;\">Home </a>/";
 if (count($pathArr)>0) {
   foreach ($pathArr as $index=>$pathStr) {
