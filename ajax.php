@@ -1,7 +1,4 @@
 <?
-//error_reporting(E_ALL);
-//ini_set('display_errors', true);
-
 include 'functions.php';
 $xml=simplexml_load_file('/home/pi/media/upload/v3Elements.xml');
 global $confFile;
@@ -110,9 +107,7 @@ foreach ($curLevel as $key1=>$data1) {
         $oid=(string) $elLevel[0]['oid'];
         
         $colorSet=getColorChannels(array($oid=>true));
-        //$ch=(string) $colorSet->{$_GET['fetColor']}->$oid;
-        
-        //WriteSettingArrToFile(array($ch=>$_GET['fetValue']), $confFile);
+
         setNodeColors($colorSet, $_GET['fetColor'], $_GET['fetValue']);
         
         $jGrowl[]="Set {$_GET['fetName']} ({$_GET['fetColor']} channel) to {$_GET['fetValue']}";
@@ -186,10 +181,6 @@ if (isOutputValueFileEmpty() && getTestMode()) {
   else
     $jGrowl[]="Could not turn off Test Mode";
 }
-
-$testMode=getTestMode();
-if ($testMode) $out.="<br>Test Mode On: <a href='#' onclick=\"getElements('$pluginBaseURL&fetPath=&setTestMode=off'); return false;\">Turn off</a>";
-else $out.="<br>Test Mode Off: <a href='#' onclick=\"getElements('$pluginBaseURL&fetPath=&setTestMode=on'); return false;\">Turn on</a>";
 
 
 $out.="<br><br><table border=0>";
