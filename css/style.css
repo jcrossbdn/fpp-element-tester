@@ -14,6 +14,12 @@ Found at: http://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes
     cursor: pointer;
 }
 
+/*
+blue pastel =  ADC5FF=rgba(173, 197, 255, 1)  /  00FF00 =rgba(0, 255, 0, 1)
+red = FCA9CF=rgba(252, 169, 207, 1)   / FF0000=rgba(255, 0, 0, 1)
+green = ADFCA9=rgba(173, 252, 169, 1)  /  0000FF =rgba(0, 0, 255, 1)
+*/
+
 .switch {
     width: 40px;
     height: 40px;
@@ -46,16 +52,13 @@ Found at: http://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes
     left: 40%;
     top: 40%;
     border-radius: inherit;
-    background: #969696; /* Fallback */                      /*button led unchecked*/
-    background: radial-gradient(40% 35%, #ccc, #969696 60%); /*button led unchecked*/
+    background: #ffffff; /* Fallback */                      /*button led unchecked*/
+    background: radial-gradient(40% 35%, #ccc, #ffffff 60%); /*button led unchecked*/
     box-shadow:
         inset 0 2px 4px 1px rgba(0,0,0,0.3),
         0 1px 0 rgba(255,255,255,1),
         inset 0 1px 0 white;
 }
-
-
-
 
 .switchRed label { 
     display: block;
@@ -79,11 +82,19 @@ Found at: http://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes
  
 .switchRed input:checked ~ label:before { /* LED checked*/
     background: #ff0000; /* Fallback */
+    /*background: radial-gradient(40% 35%, #FF0000, #FF0000 60%);
+    box-shadow:
+        inset 0 3px 5px 1px rgba(252, 169, 207, 1),
+        0 1px 0 rgba(252, 169, 207, 1),
+        0 0 10px 2px rgba(252, 169, 207, 1);*/ 
 }
 
 
-
-
+/*
+red = FCA9CF=rgba(252, 169, 207, 1)   / FF0000=rgba(255, 0, 0, 1)
+green = ADFCA9=rgba(173, 252, 169, 1)  /  0000FF =rgba(0, 0, 255, 1)
+blue pastel =  ADC5FF=rgba(173, 197, 255, 1)  /  00FF00 =rgba(0, 255, 0, 1)
+*/
 .switchGreen label { 
     display: block;
     width: 100%;
@@ -108,9 +119,11 @@ Found at: http://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes
     background: #00ff00; /* Fallback */
 }
 
-
-
-
+/*
+red = FCA9CF=rgba(252, 169, 207, 1)   / FF0000=rgba(255, 0, 0, 1)
+green = ADFCA9=rgba(173, 252, 169, 1)  /  0000FF =rgba(0, 0, 255, 1)
+blue pastel =  ADC5FF=rgba(173, 197, 255, 1)  /  00FF00 =rgba(0, 255, 0, 1)
+*/
 .switchBlue label { 
     display: block;
     width: 100%;
@@ -137,7 +150,6 @@ Found at: http://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes
 
 
 
-
 .switchWhite label { 
     display: block;
     width: 100%;
@@ -159,5 +171,5 @@ Found at: http://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes
 }
  
 .switchWhite input:checked ~ label:before { /* LED checked*/
-    background: #ffffff; /* Fallback */
+    background: #969696; /* Fallback */
 }
