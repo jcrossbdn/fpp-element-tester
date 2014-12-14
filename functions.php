@@ -35,51 +35,75 @@ function setChannel($channel, $value=0) { //$channel (1-131072)    $value (0-255
   global $fppmm;
   global $confFile;
   $cmd="$fppmm -c $channel -s $value";
-  //exec($cmd,$output,$var);
-  echo "Run Command: $cmd<br>";
-  WriteSettingToFile($channel,$value,$confFile);  
+  exec($cmd,$output,$var);
+  if ($output[0]=="Set memory mapped channel $channel to $value") return true;
+  else return false;
+  //echo "Run Command: $cmd<br>";
 }
 
-//function channelStatus($oid,$color,$method="get",$value=null) {
-//  $getStatus=0;
-//  $colors=getColorChannels(array($oid=>true));
-// if (count($colors->$color)) {
-//    foreach ($colors as $oid=>$channel) {
-//      if (count($channel) == 0) { //white channels (made from RGB) are 1 level depper due to duplication of the OID
-//        echo "<pre>"; var_dump($channel);
-//        if ($method=="get") {
-//          $thisValue=ReadSettingFromFile("$channel.$color",$confFile);
-//          if ($thisValue > 0) $getStatus=$thisValue;
-//        }
-//        if ($method=="set") {
-//          $thisValue=ReadSettingFromFile("$channel.$color",$confFile);
-//          if ($thisValue != $value) WriteSettingToFile("$channel.$color",$value,$confFile);
-//        }
-//      }
-//      else {
-//        foreach ($channel as $channelD) {
-//          if ($method=="get") {
-//            $thisValue=ReadSettingFromFile("$channelD.$color",$confFile);
-//            if ($thisValue > 0) $getStatus=$thisValue;
-//          }
-//          if ($method=="set") {
-//            $thisValue=ReadSettingFromFile("$channelD.$color",$confFile);
-//            if ($thisValue != $value) WriteSettingToFile("$channelD.$color",$value,$confFile);
-//          }
-//        }
-//      }
-//    }
-//  }
-  //echo "<pre>"; var_dump($oid); var_dump($colors); exit;
-  
-//  if ($method=="get") return ReadSettingFromFile("$oid.$color",$confFile);
-//  else {
-//    WriteSettingToFile("$oid.$color", $value, $confFile);
-//    if (ReadSettingFromFile("$oid.$color",$confFile) == $value) return true;
-//    else return false;
-//  }
-//}
+function WriteSettingArrToFile($settingArr, $plugin = "") //write output values > 0 to a special configuration file for output level tracking
+{
+	global $settingsFile;
+	global $settings;
+	$filename = $settingsFile;
 
+	if ($plugin != "") {
+		$filename = $settings['configDirectory'] . "/plugin." . $plugin;
+	}
+
+	$settingsStr = "";
+	$tmpSettings = parse_ini_file($filename);
+	if (count($settingArr)) {
+    foreach ($settingArr as $key=>$value) {
+      $tmpSettings[$key] = $value;
+    }
+  }
+  else return false;
+
+	foreach ($tmpSettings as $key => $value) {
+		if ($value > 0) $settingsStr .= $key . " = " . $value . "\n";
+	}
+  unset($tmpSettings);
+	file_put_contents($filename, $settingsStr);
+  unset($settingsStr);
+}
+
+function getChannelStatus($oid,$color) {
+  global $confFile;
+  $getStatus=false;
+  $colors=getColorChannels(array($oid=>true));
+  if (count($colors->$color)) {
+    foreach ($colors->$color as $oid=>$channel) {
+      if (count($channel) == 0) { //white channels
+        $ch=(string) $channel;
+        $thisValue=ReadSettingFromFile($ch,$confFile);
+        if ($thisValue !== false) $getStatus=$thisValue;
+      }
+      else { //white channels made from RGB are 1 level deeper due to duplication of the OID
+        $rgb=0;
+        foreach ($channel as $channelD) {
+          $thisValue=ReadSettingFromFile($channelD,$confFile);
+          if ($thisValue !== false)  {
+            $getStatus=$thisValue;
+            $rgb++;
+          }
+        }
+        if ($color=="white" && $rgb < 3) $getStatus=false; //don't illuminate the white button if R & G & B are not all illuminated
+      }    
+    }
+    if ($getStatus !== false) return true;
+    else return false;
+  }
+}
+
+function isOutputValueFileEmpty() {
+  global $confFile;
+  global $settings;
+  
+  $f=file_get_contents($settings['configDirectory']."/plugin.".$confFile);
+  if (trim(file_get_contents($settings['configDirectory'] . "/plugin." . $confFile)) == "") return true;
+  else return false;
+}
 
 
 
@@ -89,17 +113,24 @@ function alphanumeric($string) {
 }
   
 function setNodeColors($oidColorObj, $color, $value) { //set color values for an element or group of elements
+  global $confFile;
   if (count($oidColorObj->$color)) {
     foreach ($oidColorObj->$color as $oid=>$channel) {
-      if (count($channel) == 0) setChannel($channel,$value); //white channels (made from RGB) are 1 level deeper due to duplication of the OID
+      if (count($channel) == 0) {
+        $outArr[intval($channel)]=$value;
+        setChannel($channel,$value);
+      } //white channels (made from RGB) are 1 level deeper due to duplication of the OID
       else {
         foreach ($channel as $channelD) {
+          $outArr[intval($channelD)]=$value;
           setChannel($channelD, $value);
         }
       }
     }
+    WriteSettingArrToFile($outArr, $confFile);
+    unset ($outArr);
   }
-} 
+}
 
 function hex2rgb($hex) { //taken from: http://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
    $hex = str_replace("#", "", $hex);
@@ -130,6 +161,7 @@ function rgb2hex($rgb) { //taken from: http://bavotasan.com/2011/convert-hex-col
 /*
 functions for working with xml
 */  
+
 function getColorChannels($oidArr) { //creates a list of colors and associated physical output channels
   global $xml;
   $color->red=false; //set the color order
@@ -166,12 +198,18 @@ function showColorButton($color, $path, $name, $oidArr, $aName=false, $selectedO
   global $pluginBaseURL;
   $checked='';
   if (count($oidArr)) {
-    foreach ($oidArr as $oid=>$value) {
-      //if (intval(ReadSettingFromFile("$oid.$color",$settings["configDirectory"] . "/plugin.fetElements.outputValues")) > 0) $checked=' checked';
-      //if (intval(channelStatus($oid,$color)) > 0) $checked=' checked'; 
+    $oidColorObj=getColorChannels($oidArr);
+    if (count($oidColorObj->$color)) {
+      foreach ($oidColorObj->$color as $oid=>$channel) {
+        if (getChannelStatus($oid,$color)) {
+          $checked=' checked';
+          break;
+        }
+      }
     }
   }
-  return "<div class='switch switch$color'><input type='checkbox' onclick='javascript:getElements(\"\&fetPath=$path&fetName=$name&fetColor=$color\&fetValue=".($checked ? "0" : "255").($selectedOID > 0 ? "\&fetoid=$selectedOID" : "").($aName === false ? "" : "#$aName")."\"); return false;' $checked><label></label></div>";
+  unset($oidColorObj);
+  return "<div class='switch switch$color'><input type='checkbox' onclick='javascript:getElements(\"\&fetPath=$path&fetName=$name&fetColor=$color\&fetValue=".($checked=="" ? "255" : "0").($selectedOID > 0 ? "\&fetoid=$selectedOID" : "").($aName === false ? "" : "#$aName")."\"); return false;' $checked><label></label></div>";
 }
 
 
