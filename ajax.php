@@ -226,7 +226,6 @@ $out.="<br><br>$breadCrumb";
 
 $out.="<script type=\"text/javascript\" id=\"fetGrowlMessage\">";
 if (count($jGrowl)) {
-  //$jGrowl=array_keys(array_flip($jGrowl));
   foreach ($jGrowl as $msg) {
     $out.="  $.jGrowl(\"$msg\");";
   }
