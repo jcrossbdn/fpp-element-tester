@@ -181,8 +181,10 @@ unset($data2);
 
 
 if (isOutputValueFileEmpty() && getTestMode()) {
-  setTestMode(false);
-  $jGrowl[]="Turned off Test Mode";
+  if (setTestMode(false)) 
+    $jGrowl[]="Turned off Test Mode";
+  else
+    $jGrowl[]="Could not turn off Test Mode";
 }
 
 $testMode=getTestMode();
