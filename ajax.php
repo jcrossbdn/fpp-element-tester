@@ -1,11 +1,31 @@
 <?
+//error_reporting(E_ERROR);
+//ini_set('display_errors', true);
+
 include 'functions.php';
-$xml=simplexml_load_file('/home/pi/media/upload/v3Elements.xml');
+$xmlFile=ReadSettingFromFile("ConfigFileXML", $_GET['plugin']);
+if ($xmlFile!==false) {
+  $xml=simplexml_load_file($xmlFile);
+}
+else {
+  echo "Please upload your Displays configuration file (in CSV format) in the Element Configuration Section above to use this plugin.";
+  exit;
+}
+if ($xml===false)  {
+  echo "ERROR: Malformed Plugin Configuration File.";
+  echo "<br><i>$xmlFile</i>";
+  //echo "<br><br>Error Details:<br>";
+  //echo "<pre>"; var_dump(libxml_get_errors()); var_dump(libxml_get_last_error()); echo "</pre><hr>";
+  //showAllErrors(libxml_get_errors(),file_get_contents("/home/pi/media/upload/Channel Assignment.xml"));
+  exit;
+}
+
 global $confFile;
 $groupBase="groups";
 $pluginBaseURL="";
 $path="";
-
+$colorArray=array("Red"=>"r","Green"=>"g","Blue"=>"b","White"=>"w");
+  
 if (isset($_GET['fetPath']) && trim($_GET['fetPath']) != '') {
   $pathArr=explode("/",$_GET['fetPath']);
   if ($pathArr[0] != '') {
@@ -25,7 +45,6 @@ if (isset($_GET['fetPath']) && trim($_GET['fetPath']) != '') {
 }
 $path=ltrim($path,"/");
 $curLevel=$xml->xpath($groupBase);
-
 /*
 fetPath:
 Arches/  = group named arches
@@ -36,7 +55,7 @@ Arches/Arch 1  = element named Arch 1 in group Arches
 */
 
 $pathArr=explode("/",$path);
-$breadCrumb="<pre><a href='#' onclick=\"getElements('$pluginBaseURL&fetPath='); return false;\">Home </a>/";
+$breadCrumb="<pre><a href='#' onclick=\"getElements('$pluginBaseURL&fetPath='); return false;\"> Home </a>/";
 if (count($pathArr)>0) {
   foreach ($pathArr as $index=>$pathStr) {
     $breadCrumb.="<a href='#' onclick=\"getElements('$pluginBaseURL&fetPath=";
@@ -50,7 +69,7 @@ if (count($pathArr)>0) {
 $breadCrumb.="</pre>";
 $out.=$breadCrumb;
 
-
+//If an ON/OFF command has been sent then ensure we are in test mode
 if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName'])) {
   if (getTestMode()===false) {
     if (setTestMode(true)===false) {
@@ -62,117 +81,71 @@ if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName
   }          
 }
 
-
-if (isset($_GET['setTestMode'])) {
-  if ($_GET['setTestMode'] == "on")  {
-    if (setTestMode(true))  {
-      $jGrowl[]="Turned on Test Mode";
-    }      
-  }    
-  else {
-    if (setTestMode(false))  {
-      $jGrowl[]="Turned Off Test Mode";
-    }
-  }          
-}
-
-
-
-if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName']) && $_GET['fetName']=="-fetAll-" && getTestMode()) { //process All Channels click before groups/element display
-  $all=$xml->xpath("physical/outputs");
+//process "All Channels" click before groups/element display to ensure proper button refresh
+if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName']) && $_GET['fetName']=="-fetAll-" && getTestMode()) {
+  $all=$xml->xpath("allChannels/{$_GET['fetColor']}[@ch]");
   if (count($all)) {
-    foreach ($all[0]->output as $attribs) {
-      $oids[(string)$attribs['oid']]=true;
-    }
-    $colors=getColorChannels($oids);  
-    setNodeColors($colors, $_GET['fetColor'], $_GET['fetValue']);
+    if (isset($all[0]['ch'])) setNodeColors((string)$all[0]['ch'],$_GET['fetValue']);
+    $jGrowl[]="Set All Channels ({$_GET['fetColor']} channels) to {$_GET['fetValue']}";
   }
-  $jGrowl[]="Set All Outputs ({$_GET['fetColor']} channels) to {$_GET['fetValue']}";
+  unset($all);
 }
 
 
+//Display and process all groups/elements at current path
 $outItems="";
 foreach ($curLevel as $key1=>$data1) {
   if (count($data1) == 0 && isset($data1['name'])) { //display the individual channels assigned to specified element
-    //gather oids and then list all channels
-    $oids=explode(",",$data1['oid']);
-    foreach ($oids as $oid) {
-      $oidElements['oids'][$oid]=true;
-    }
-    $colors=getColorChannels($oidElements['oids']);
-    $names=getChannelNames($oidElements['oids']);
-    foreach ($names as $oid=>$name) {
-      if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName']) && $_GET['fetName']==$name && getTestMode()) {
-        $elLevel=$xml->xpath("physical/outputs/output[@name='{$_GET['fetName']}']");
-        $oid=(string) $elLevel[0]['oid'];
-        
-        $colorSet=getColorChannels(array($oid=>true));
-
-        setNodeColors($colorSet, $_GET['fetColor'], $_GET['fetValue']);
-        
-        $jGrowl[]="Set {$_GET['fetName']} ({$_GET['fetColor']} channel) to {$_GET['fetValue']}";
-      } 
-      $outItems.="<tr><td><a name='".alphanumeric($name)."'></a>$name</td>";
-      if (isset($useOid)) unset($useOid);
-      $useOid[$oid]=true;
-      if ($colors) {
-        foreach ($colors as $color=>$oid) {
-          if ($colors->$color) $outItems.="<td>".showColorButton($color, $path, $name, $useOid, alphanumeric($name))."</td>"; else $outItems.="<td></td>";
-        }
+    $detail=getOutputDetail((string)$data1['oid']);
+    foreach ($detail as $output) {
+      if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName']) && $_GET['fetName']==$output['name'] && getTestMode()) {
+        $short=$colorArray[$_GET['fetColor']];
+        if ($short != '' && isset($output[$short])) setNodeColors((string)$output[$short],$_GET['fetValue']);
+        unset($short);
+        $jGrowl[]="Set {$_GET['fetName']} ({$_GET['fetColor']} channels) to {$_GET['fetValue']}";
       }
-     $outItems.= "</tr>";
+      $outItems.="<tr><td><a name='".alphanumeric((string)$output['name'])."'></a>{$output['name']}</td>";
+      foreach ($colorArray as $long=>$short) {
+        if (isset($output[$short])) $outItems.="<td>".showGroupColorButton($long, $path, $output['name'], getGroupChannelStatus((string)$output[$short],$long), alphanumeric($output['name']))."</td>";
+        else $outItems.="<td></td>";
+      }
     }
-    unset($names);
-    unset($oidElements);
-    unset($colors);
   }
   else { //this is in a group, recurse it
+    $count=0;
     foreach ($data1 as $key2=>$data2) {
-      if ($key2=="element")  { //if we find an element in this group then work with it here
-        $oids=explode(",",$data2['oid']);
-        foreach ($oids as $oid) {
-          $oidElements['oids'][$oid]=true;
-        }
-      }
-      else {
-        $oidElements=RecurseXML($data2);
-      }
+      $count++;
       $thisPath=ltrim("$path".($key2=="element" ? "{$data2['name']}" : "{$data2['name']}/"),"/");
       $outItems.="<tr><td><a name='".alphanumeric($data2['name'])."'></a>";
       $outItems.="<a href='#' onclick=\"getElements('$pluginBaseURL&fetPath=$thisPath'); return false;\">{$data2['name']}</a></td>";
-      $colors=getColorChannels($oidElements['oids']);
+      
       if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName']) && $_GET['fetName']==$data2['name'] && getTestMode()) { //process change on selected channel if it is identified
         $geLevel=$xml->xpath($groupBase."/group[@name='{$_GET['fetName']}']");
-        $selectedBranch=RecurseXML($geLevel);
-        
-        if ($selectedBranch['count'] == 0)  {
+        if (!count($geLevel)) 
           $geLevel=$xml->xpath($groupBase."/element[@name='{$_GET['fetName']}']");
-          $selectedBranch=RecurseXML($geLevel);
-        }
-        if ($selectedBranch['count'] > 0)  {
-          $colorSet=getColorChannels($selectedBranch['oids']);
-          setNodeColors($colorSet, $_GET['fetColor'], $_GET['fetValue']);
-        }
-        $jGrowl[]="Set {$_GET['fetName']} ({$_GET['fetColor']} channels) to {$_GET['fetValue']}";
-      }
-      if ($colors) {
-        foreach ($colors as $color=>$oid) {
-          if ($colors->$color) $outItems.="<td>".showColorButton($color, $path, $data2['name'], $oidElements['oids'],alphanumeric($data2['name']))."</td>"; else $outItems.="<td></td>";
+          
+        if (count($geLevel)) {
+          $short=$colorArray[$_GET['fetColor']];
+          if ($short != '' && isset($geLevel[0][$short])) setNodeColors((string)$geLevel[0][$short],$_GET['fetValue']);
+          unset($short);
+          
+          $jGrowl[]="Set {$_GET['fetName']} ({$_GET['fetColor']} channels) to {$_GET['fetValue']}";
         }
       }
+      
+      foreach ($colorArray as $long=>$short) {
+        if (isset($data2[$short])) $outItems.="<td>".showGroupColorButton($long, $path, $data2['name'], getGroupChannelStatus((string)$data2[$short],$long), alphanumeric($output['name']))."</td>";
+        else $outItems.="<td></td>";
+      }
+
       $outItems.="</tr>";
-      unset($oidElements);
-      unset($oids);
-      unset($colors);
-      unset($colorSet);
       unset($geLevel);
-      unset($selectedBranch);
     }
+    unset($data2);
   }
 }
 
 unset($data1);
-unset($data2);
 
 
 if (isOutputValueFileEmpty() && getTestMode()) {
@@ -182,30 +155,22 @@ if (isOutputValueFileEmpty() && getTestMode()) {
     $jGrowl[]="Could not turn off Test Mode";
 }
 
-
 $out.="<br><br><table border=0>";
 
-//All Channels  (All Channels click is handled above the standard element display ($colorSet)
+//All Channels Display (All Channels CLICK events are handled above the standard element display ($colorSet)
 if ($_GET['fetPath']=="") {
-  $all=$xml->xpath("physical/outputs");
-  if (count($all)) {
-    foreach ($all[0]->output as $attribs) {
-      $oids[(string)$attribs['oid']]=true;
+  $out.="<tr><td>All Channels</td>";
+  $colors=array("Red"=>"r","Green"=>"g","Blue"=>"b","White"=>"w");
+  
+  foreach ($colors as $long=>$short) {
+    $all=$xml->xpath("allChannels/{$long}[@ch]");
+    if (count($all)) {
+      if (isset($all[0]['ch'])) $out.="<td>".showGroupColorButton($long, $path, "-fetAll-", getGroupChannelStatus((string)$all[0]['ch'],$long))."</td>";
+      else $out.="<td></td>";
     }
-    $colors=getColorChannels($oids);
-    
-    $out.="<tr><td>All Channels</td>";
-    if ($colors) {
-      foreach ($colors as $color=>$oid) {
-        if ($colors->$color) $out.="<td>".showColorButton($color, $path, "-fetAll-", $oids, "")."</td>"; else $out.="<td></td>";
-      }
-    }
-    $out.="</tr>";
   }
-  unset($all);
-  unset($oids);
-  unset($colors);
 }
+
 unset($xml);
 
 $out.=$outItems;
