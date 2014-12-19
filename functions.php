@@ -32,7 +32,6 @@ function setChannel($channel, $value=0) { //$channel (1-131072)    $value (0-255
   global $confFile;
   $cmd="$fppmm -c $channel -s $value";
   exec($cmd,$output,$var);
-  //echo "Run Command: $cmd<br>";
   if ($output[0]=="Set memory mapped channel $channel to $value") return true;
   else return false;
 }
@@ -128,6 +127,10 @@ function setNodeColors($channelsIn,$value) { //$channelsIn is a CSV string or ar
   if (count($channels)) {
     foreach ($channels as $channel) {
       setChannel($channel,$value);
+      $outArr[intval($channel)]=$value;
+    }
+
+    foreach ($channels as $channel) {
       $outArr[intval($channel)]=$value;
     }
     WriteSettingArrToFile($outArr,$confFile);
@@ -462,7 +465,6 @@ function recurseGroupArrayColors($array) { //Used to gather all color detail for
   global $outputs;
   foreach ($array as $key=>$value) {
     if (is_array($value)) {
-      //$colors=array_merge_recursive(recurseGroupArrayColors($value),$colors);
       $colors=recurseGroupArrayColors($value);
     }
     else {

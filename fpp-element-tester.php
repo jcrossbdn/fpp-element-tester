@@ -1,7 +1,6 @@
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors', true);
-
+error_reporting(E_ALL);
+ini_set('display_errors', true);
 
 if (isset($_POST['fpp-submit']) && isset($_FILES['fpp-config-file'])) {
   $ext=strtolower(substr($_FILES['fpp-config-file']['name'],-3));
@@ -42,7 +41,6 @@ if (isset($jGrowl)) {
       success: function(data) {
         $('#elementBlock').html(data);
         $(window).scrollTop(screenPosition);
-        //eval(document.getElementById("fetGrowlMessage").innerHTML);
       }
     });
   }
@@ -64,7 +62,7 @@ if (isset($jGrowl)) {
 <form method='post' enctype='multipart/form-data'><input type='file' name='fpp-config-file'><input type='submit' value='Upload' name='fpp-submit'></form>
 </fieldset>
 </div>
-
+<br>
 <div id="elements" class="settings">
 <fieldset>
 <legend>Display Elements</legend>

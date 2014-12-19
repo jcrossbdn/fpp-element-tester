@@ -14,9 +14,6 @@ else {
 if ($xml===false)  {
   echo "ERROR: Malformed Plugin Configuration File.";
   echo "<br><i>$xmlFile</i>";
-  //echo "<br><br>Error Details:<br>";
-  //echo "<pre>"; var_dump(libxml_get_errors()); var_dump(libxml_get_last_error()); echo "</pre><hr>";
-  //showAllErrors(libxml_get_errors(),file_get_contents("/home/pi/media/upload/Channel Assignment.xml"));
   exit;
 }
 
