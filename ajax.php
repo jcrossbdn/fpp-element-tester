@@ -14,6 +14,9 @@ else {
 if ($xml===false)  {
   echo "ERROR: Malformed Plugin Configuration File.";
   echo "<br><i>$xmlFile</i>";
+  //echo "<br><br>Error Details:<br>";
+  //echo "<pre>"; var_dump(libxml_get_errors()); var_dump(libxml_get_last_error()); echo "</pre><hr>";
+  //showAllErrors(libxml_get_errors(),file_get_contents("/home/pi/media/upload/Channel Assignment.xml"));
   exit;
 }
 
@@ -98,13 +101,30 @@ foreach ($curLevel as $key1=>$data1) {
       if (isset($_GET['fetColor']) && isset($_GET['fetValue']) && isset($_GET['fetName']) && $_GET['fetName']==$output['name'] && getTestMode()) {
         $short=$colorArray[$_GET['fetColor']];
         if ($short != '' && isset($output[$short])) setNodeColors((string)$output[$short],$_GET['fetValue']);
+        if ($short == 'w' && isset($output['r']) && isset($output['g']) && isset($output['b'])) setNodeColors(array('r'=>(string)$output['r'], 'g'=>(string)$output['g'], 'b'=>(string)$output['b']),$_GET['fetValue']);
         unset($short);
         $jGrowl[]="Set {$_GET['fetName']} ({$_GET['fetColor']} channels) to {$_GET['fetValue']}";
       }
       $outItems.="<tr><td><a name='".alphanumeric((string)$output['name'])."'></a>{$output['name']}</td>";
       foreach ($colorArray as $long=>$short) {
-        if (isset($output[$short])) $outItems.="<td>".showGroupColorButton($long, $path, $output['name'], getGroupChannelStatus((string)$output[$short],$long), alphanumeric($output['name']))."</td>";
-        else $outItems.="<td></td>";
+        switch ($short) {
+          case "w":
+              if (isset($output[$short]))
+                $outItems.="<td>".showGroupColorButton($long, $path, $output['name'], getGroupChannelStatus((string)$output[$short],$long), alphanumeric($output['name']))."</td>";
+              elseif (isset($output['r']) && isset($output['g']) && isset($output['b'])) {
+                if (getGroupChannelStatus((string)$output['r'], $long) && getGroupChannelStatus((string)$output['g'], $long) && getGroupChannelStatus((string)$output['b'], $long)) $rgbWhite=true;
+                else $rgbWhite=false;
+                $outItems.="<td>".showGroupColorButton($long, $path, $output['name'], $rgbWhite, alphanumeric($output['name']))."</td>";
+              }
+              else $outItems.="<td></td>";
+              break;
+              
+          default: 
+              if (isset($output[$short])) 
+                $outItems.="<td>".showGroupColorButton($long, $path, $output['name'], getGroupChannelStatus((string)$output[$short],$long), alphanumeric($output['name']))."</td>"; 
+              else $outItems.="<td></td>";
+              break;
+        }
       }
     }
   }

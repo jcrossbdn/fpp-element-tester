@@ -31,7 +31,6 @@ if (isset($jGrowl)) {
 ?>
 <script>
   function getElements(command) {
-    //alert ("getElements function ran with command: " + command);
     var screenPosition = $(window).scrollTop();
     
     $.ajax({

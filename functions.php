@@ -27,11 +27,56 @@ function setTestMode($state=false) { //true/false
   return false;
 }
 
+function setChannelMulti($channelCSV, $value=0, $maxForks=25) {
+//http://wezfurlong.org/blog/2005/may/guru-multiplexing/
+//http://stackoverflow.com/questions/9978964/run-multiple-exec-commands-at-once-but-wait-for-the-last-one-to-finish
+  $channelArr=explode(",",$channelCSV);
+  $each=ceil(count($channelArr) / $maxForks);
+  if (count($channelArr) > $maxForks) $remainder=$each % $maxForks;
+  else $remainder=0;
+  $processArray=array_chunk($channelArr,$each+$remainder);
+
+//  $mh=curl_multi_init();
+
+  foreach ($processArray as $data1) {
+    $channels="";
+    foreach ($data1 as $channel) {
+      $channels.="$channel,";
+    }
+    $channels=substr($channel,0,-1);
+    
+/*    $ch=curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:80/plugin.php?plugin={$_GET['plugin']}&page=multiExec.php&nopage=1");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "channels=$channels");
+    curl_multi_add_handle($mh, $ch);
+    $handles[]=$ch; 
+  }
+  
+  $isRunning=null;
+  do {
+    curl_multi_exec($mh, $isRunning);
+    usleep(100000);
+  } while ($isRunning > 0);
+  
+  for ($i=0; $i < count($handles); $i++) {
+    $outputs[$i]=trim(curl_multi_getcontent($handles[$i]));
+    curl_multi_remove_handle($mh, $handles[$i]);
+  }
+  curl_multi_close($mh);
+*/
+}
+  //echo "<pre>"; var_dump($outputs); echo "</pre>";
+}
+
 function setChannel($channel, $value=0) { //$channel (1-131072)    $value (0-255)
   global $fppmm;
   global $confFile;
   $cmd="$fppmm -c $channel -s $value";
   exec($cmd,$output,$var);
+  //echo "Run Command: $cmd<br>";
   if ($output[0]=="Set memory mapped channel $channel to $value") return true;
   else return false;
 }
@@ -68,6 +113,15 @@ function WriteSettingArrToFile($settingArr, $plugin = "") //write output values 
 function getGroupChannelStatus($channels,$color) {  //channels=csv of channels or array('r'=>csv of channels, 'g'=>csv of channels, 'b'=>csv of channels, 'w'=>csv of channels)
   global $settings;
   global $confFile;
+  
+  if (is_array($channels)) {
+    foreach ($channels as $color=>$ch) {
+      $out.="$ch,";
+    }
+    unset($channels);
+    $channels=substr($out,0,-1);
+    unset($ch);
+  }
   $on=parse_ini_file($settings['configDirectory'] . "/plugin." . $confFile);
   if (count($on)) {
     $onList=implode(",",array_keys($on));
@@ -130,6 +184,8 @@ function setNodeColors($channelsIn,$value) { //$channelsIn is a CSV string or ar
       $outArr[intval($channel)]=$value;
     }
 
+    //setChannelMulti($channelStr, $value);
+    //echo "Done set";
     foreach ($channels as $channel) {
       $outArr[intval($channel)]=$value;
     }
@@ -465,6 +521,7 @@ function recurseGroupArrayColors($array) { //Used to gather all color detail for
   global $outputs;
   foreach ($array as $key=>$value) {
     if (is_array($value)) {
+      //$colors=array_merge_recursive(recurseGroupArrayColors($value),$colors);
       $colors=recurseGroupArrayColors($value);
     }
     else {
