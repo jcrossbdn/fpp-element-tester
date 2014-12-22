@@ -8,9 +8,6 @@ This plugin allows you to load in your displays configuration and test elements 
 3) Browse and upload your displays CSV configuration file (see below section on creating a CSV configuration file)
 4) Enjoy the element testing functionality 
 
-=-=-=-=- Known Limitations / Gotchas =-=-=-=-
-Channels are currently toggled by sending individual commands to each output in a group/element.  This can lead to long processing time when selecting elements/groups with numerous outputs.
-
 =-=-=-=- Creating a CSV Configuration File =-=-=-=-
 1) Open Microsoft Excel, Open Office's Calc, or your favorite spreadsheet editor
 2) Create a worksheet with the column headers channel, name, color and group (you may enter as many group columns as you wish to have pixels/outputs assigned to multiple groups)
