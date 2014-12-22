@@ -1,6 +1,6 @@
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors', true);
+error_reporting(E_ERROR);
+ini_set('display_errors', true);
 
 if (isset($_POST['fpp-submit']) && isset($_FILES['fpp-config-file'])) {
   $ext=strtolower(substr($_FILES['fpp-config-file']['name'],-3));
@@ -8,10 +8,27 @@ if (isset($_POST['fpp-submit']) && isset($_FILES['fpp-config-file'])) {
     echo "Error uploading Channel Configuration File.  The file must be a CSV.";
   else {
     include 'functions.php';
-    if (convertCSVtoXML($_FILES['fpp-config-file']))  {
+    $ret=convertCSVtoXML($_FILES['fpp-config-file']);
+    if ($ret['csv']===true) {
+      $jGrowl[]="XML File Created Successfully.";
+    }
+    else {
+      $jGrowl[]="XML File Creation Failed.";
+      echo "<strong><font color='red'>{$ret['csv']}</font></strong>";
+    }
+    if ($ret['config']===true)  {
       $jGrowl[]="Display Configuration File was Created.";
     }
-    else $jGrowl[]="Display Configuration File Failed.";
+    else {
+      $jGrowl[]="Display Configuration File create/update Failed.";
+    }
+    if (isset($ret['mapCreated']) && $ret['mapCreated']!==false) $jGrowl[]=$ret['mapCreated'];
+    elseif (isset($ret['mapUpdated']) && $ret['mapUpdated']!==false) $jGrowl[]=$ret['mapUpdated'];
+    elseif (isset($ret['mapOkay']) && $ret['mapOkay']!==false) $jGrowl[]=$ret['mapOkay'];
+    else  {
+      $jGrowl[]="Error Creating Pixel Overlay Model";
+      echo "<strong><font color='red'>An Error was encountered while creating Pixel Overlay Model</font></strong>";
+    }
   }
 }
 

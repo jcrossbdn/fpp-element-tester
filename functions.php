@@ -7,79 +7,116 @@ require_once $settings['fppDir'].'/www/common.php';
 
 function getTestMode() {
   global $fppmm;
-  $cmd="$fppmm -t status";
+  $cmd="$fppmm -m {$_GET['plugin']}";
   exec ($cmd,$output,$var);
-  
-  preg_match("/.*Off\..*/",$output[0],$match);
-  if (count($match)) return false;
-  else return true;
+  preg_match("/Status.*/",$output[2],$match);
+  if (strstr($match[0],": Active")!==false) return true;
+  elseif (strstr($match[0],": Idle")!==false) return false;
+  else return false;
 }
 
 function setTestMode($state=false) { //true/false
   global $fppmm;
-  if ($state) $cmd="$fppmm -t on";
-  else $cmd="$fppmm -t off";
+  if ($state) $cmd="$fppmm -m {$_GET['plugin']} -o on";
+  else $cmd="$fppmm -m {$_GET['plugin']} -o off";
   exec ($cmd,$output,$var);
-  usleep(500000);
+  //usleep(500000);
   $cur=getTestMode();
   if ($cur && $state) return true;
   if (!$cur && !$state) return true;
   return false;
 }
 
-function setChannelMulti($channelCSV, $value=0, $maxForks=25) {
-//http://wezfurlong.org/blog/2005/may/guru-multiplexing/
-//http://stackoverflow.com/questions/9978964/run-multiple-exec-commands-at-once-but-wait-for-the-last-one-to-finish
-  $channelArr=explode(",",$channelCSV);
-  $each=ceil(count($channelArr) / $maxForks);
-  if (count($channelArr) > $maxForks) $remainder=$each % $maxForks;
-  else $remainder=0;
-  $processArray=array_chunk($channelArr,$each+$remainder);
-
-//  $mh=curl_multi_init();
-
-  foreach ($processArray as $data1) {
-    $channels="";
-    foreach ($data1 as $channel) {
-      $channels.="$channel,";
-    }
-    $channels=substr($channel,0,-1);
-    
-/*    $ch=curl_init();
-    curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:80/plugin.php?plugin={$_GET['plugin']}&page=multiExec.php&nopage=1");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, "channels=$channels");
-    curl_multi_add_handle($mh, $ch);
-    $handles[]=$ch; 
-  }
-  
-  $isRunning=null;
-  do {
-    curl_multi_exec($mh, $isRunning);
-    usleep(100000);
-  } while ($isRunning > 0);
-  
-  for ($i=0; $i < count($handles); $i++) {
-    $outputs[$i]=trim(curl_multi_getcontent($handles[$i]));
-    curl_multi_remove_handle($mh, $handles[$i]);
-  }
-  curl_multi_close($mh);
-*/
-}
-  //echo "<pre>"; var_dump($outputs); echo "</pre>";
-}
-
 function setChannel($channel, $value=0) { //$channel (1-131072)    $value (0-255)
   global $fppmm;
   global $confFile;
+
   $cmd="$fppmm -c $channel -s $value";
   exec($cmd,$output,$var);
   //echo "Run Command: $cmd<br>";
   if ($output[0]=="Set memory mapped channel $channel to $value") return true;
   else return false;
 }
+
+function updateMemoryMappedChannels() {
+  global $confFile;
+  if (is_dir("/opt/fpp/plugins/{$_GET['plugin']}")) $cmd="perl /opt/fpp/plugins/{$_GET['plugin']}/memoryMap.pl";
+  elseif (is_dir("/home/pi/media/plugins/{$_GET['plugin']}")) $cmd="perl /home/pi/media/plugins/{$_GET['plugin']}/memoryMap.pl";
+  else return false;
+  exec($cmd,$output,$var);
+  if ($output[0]=="Success") return true;
+  
+  error_log("fpp-element-tester Error returned by updateMemoryMappedChannels: $output[0]");
+  return false;
+}
+
+function GetChannelMemMaps()
+{
+	global $settings;
+	$memmapFile = $settings['channelMemoryMapsFile'];
+
+	$result = Array();
+
+	$f = fopen($memmapFile, "r");
+	if($f == FALSE)
+	{
+		fclose($f);
+		returnJSON($result);
+	}
+
+	while (!feof($f))
+	{
+		$line = trim(fgets($f));
+
+		if ($line == "")
+			continue;
+		
+		if (substr($line, 0, 1) == "#")
+			continue;
+
+		$memmap = explode(",",$line,10);
+
+		$elem = Array();
+		$elem['BlockName']        = $memmap[0];
+		$elem['StartChannel']     = $memmap[1];
+		$elem['ChannelCount']     = $memmap[2];
+		$elem['Orientation']      = $memmap[3];
+		$elem['StartCorner']      = $memmap[4];
+		$elem['StringCount']      = $memmap[5];
+		$elem['StrandsPerString'] = $memmap[6];
+
+		$result[] = $elem;
+	}
+	fclose($f);
+
+	return $result;
+}
+
+function SetChannelMemMaps($dataArr)
+{
+	global $args;
+	global $settings;
+
+	$memmapFile = $settings['channelMemoryMapsFile'];
+
+	//$data = json_decode($args['data'], true);
+	$f = fopen($memmapFile, "w");
+	if($f == FALSE)
+	{
+		fclose($f);
+		returnJSON($result);
+	}
+
+	foreach ($dataArr as $memmap) {
+		fprintf($f, "%s,%d,%d,%s,%s,%d,%d\n",
+			$memmap['BlockName'], $memmap['StartChannel'],
+			$memmap['ChannelCount'], $memmap['Orientation'],
+			$memmap['StartCorner'], $memmap['StringCount'],
+			$memmap['StrandsPerString']);
+	}
+	fclose($f);
+}
+
 
 function WriteSettingArrToFile($settingArr, $plugin = "") //write output values > 0 to a special configuration file for output level tracking
 {
@@ -180,16 +217,11 @@ function setNodeColors($channelsIn,$value) { //$channelsIn is a CSV string or ar
   $channels=explode(",",$channelStr);
   if (count($channels)) {
     foreach ($channels as $channel) {
-      setChannel($channel,$value);
-      $outArr[intval($channel)]=$value;
-    }
-
-    //setChannelMulti($channelStr, $value);
-    //echo "Done set";
-    foreach ($channels as $channel) {
+      //setChannel($channel,$value);
       $outArr[intval($channel)]=$value;
     }
     WriteSettingArrToFile($outArr,$confFile);
+    updateMemoryMappedChannels();
     unset($outArr);
   }
 }
@@ -321,7 +353,8 @@ function convertCSVtoXML($files) { //$files is $_FILES
   $outputs="";
   $groups=array();
   $header=false;
-  
+  $lastChannel=1;
+  $retArr=array();
   
   $fileRow=explode("\n",file_get_contents($files['tmp_name']));
   if (count($fileRow)) {
@@ -336,12 +369,15 @@ function convertCSVtoXML($files) { //$files is $_FILES
             case "group": $header['group'][]=$col; break;
           }
         }
+        if (!isset($header['channel']) || !isset($header['name']) || !isset($header['color'])) return array('csv'=>"ERROR: Proper Header Not Found in CSV File. (channel, name, color are required values)");
       }
       else {
+        if (trim(str_replace(",","",$row))=="") break; //skip blank lines
         $cols=explode(",",$row);
         $channel=$cols[$header['channel']];
         $name=$cols[$header['name']];
         $color=trim(strtoupper($cols[$header['color']]));
+        if (trim($name)=="") break; //skip names that are blank
         
         //add channels to output array
         $inta=$cols[$header['channel']];
@@ -394,6 +430,11 @@ function convertCSVtoXML($files) { //$files is $_FILES
       if (isset($data['W'])) $xmlOutput.=" w=\"{$data['W']}\"";
       $xmlOutput.=" />\n";
       file_put_contents($xmlFile,$xmlOutput,FILE_APPEND);
+      
+      if (isset($data['R']) && $data['R'] > $lastChannel) $lastChannel=$data['R'];
+      if (isset($data['G']) && $data['G'] > $lastChannel) $lastChannel=$data['G'];
+      if (isset($data['B']) && $data['B'] > $lastChannel) $lastChannel=$data['B'];
+      if (isset($data['W']) && $data['W'] > $lastChannel) $lastChannel=$data['W'];
     }
     $xmlOutput="</outputs>\n</physical>\n";
     file_put_contents($xmlFile,$xmlOutput,FILE_APPEND);
@@ -449,8 +490,40 @@ function convertCSVtoXML($files) { //$files is $_FILES
     unset ($colorArr);
     unset ($colorArray);
   }
+  else return array('csv'=>"ERROR: CSV File Contains no rows.");
+  $retArr['csv']=true; //csv was converted successfully
+  
+  //Create plugin config file
   WriteSettingToFile("ConfigFileXML", $xmlFile, $_GET['plugin']);
-  return true;
+  $retArr['config']=true; //config was created successfully
+  
+  //create a Pixel Overlay model for this display using channels 1 through $lastChannel
+  $memMaps=GetChannelMemMaps();
+  if (count($memMaps)) {
+    $foundFET=false;
+    $update=false;
+    foreach ($memMaps as $index=>$memMap) {
+      if ($memMap['BlockName']==$_GET['plugin']) {
+        $foundFET=true;
+        if ($memMap['StartChannel'] != 1) {$memMaps[$index]['StartChannel']=1; $update=true;}
+        if ($memMap['ChannelCount'] != $lastChannel) {$memMaps[$index]['ChannelCount']=$lastChannel; $update=true;}
+      }
+    }
+  }
+  if (!$foundFET) {$retArr['mapCreated']="Pixel Overlay Model created with $lastChannel channels."; $memMaps[]=array('BlockName'=>$_GET['plugin'], 'StartChannel'=>1, 'ChannelCount'=>$lastChannel, 'Orientation'=>'horizontal', 'StartCorner'=>'TL', 'StringCount'=>1, 'StrandsPerString'=>1); $update=true;}
+  if ($update===true) {
+    if ($foundFET) $retArr['mapUpdated']="Pixel Overlay Model updated to $lastChannel channels.";
+    SetChannelMemMaps($memMaps);
+    echo <<<EOF
+<script type='text/javascript'>
+  $(document).ready(function() {
+    SetRestartFlag();
+  });
+</script>
+EOF;
+  }
+  else $retArr['mapOkay']="Pixel Overlay Model did not require modification";
+  return $retArr;
 }    
     
 function recurseGroupArrayAllColors($array) {  //used to get all color channels for all outputs

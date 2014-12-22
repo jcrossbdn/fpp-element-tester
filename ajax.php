@@ -1,6 +1,11 @@
 <?
-//error_reporting(E_ERROR);
-//ini_set('display_errors', true);
+error_reporting(E_ERROR);
+ini_set('display_errors', true);
+
+//initialize all variables so we don't fill up the apache error log with warnings
+$jGrowl=array();
+$output="";
+$out="";
 
 include 'functions.php';
 $xmlFile=ReadSettingFromFile("ConfigFileXML", $_GET['plugin']);
@@ -128,7 +133,7 @@ foreach ($curLevel as $key1=>$data1) {
       }
     }
   }
-  else { //this is in a group, recurse it
+  else { //this item is in a group. Gather current level item
     $count=0;
     foreach ($data1 as $key2=>$data2) {
       $count++;
@@ -151,7 +156,7 @@ foreach ($curLevel as $key1=>$data1) {
       }
       
       foreach ($colorArray as $long=>$short) {
-        if (isset($data2[$short])) $outItems.="<td>".showGroupColorButton($long, $path, $data2['name'], getGroupChannelStatus((string)$data2[$short],$long), alphanumeric($output['name']))."</td>";
+        if (isset($data2[$short])) $outItems.="<td>".showGroupColorButton($long, $path, $data2['name'], getGroupChannelStatus((string)$data2[$short],$long))."</td>";
         else $outItems.="<td></td>";
       }
 
@@ -175,7 +180,7 @@ if (isOutputValueFileEmpty() && getTestMode()) {
 $out.="<br><br><table border=0>";
 
 //All Channels Display (All Channels CLICK events are handled above the standard element display ($colorSet)
-if ($_GET['fetPath']=="") {
+if (isset($_GET['fetPath']) && $_GET['fetPath']=="") {
   $out.="<tr><td>All Channels</td>";
   $colors=array("Red"=>"r","Green"=>"g","Blue"=>"b","White"=>"w");
   
