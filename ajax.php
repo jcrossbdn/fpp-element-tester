@@ -180,7 +180,7 @@ if (isOutputValueFileEmpty() && getTestMode()) {
 $out.="<br><br><table border=0>";
 
 //All Channels Display (All Channels CLICK events are handled above the standard element display ($colorSet)
-if (isset($_GET['fetPath']) && $_GET['fetPath']=="") {
+if (!isset($_GET['fetPath']) || (isset($_GET['fetPath']) && $_GET['fetPath']=="")) {
   $out.="<tr><td>All Channels</td>";
   $colors=array("Red"=>"r","Green"=>"g","Blue"=>"b","White"=>"w");
   
