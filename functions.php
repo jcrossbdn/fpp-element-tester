@@ -20,7 +20,6 @@ function setTestMode($state=false) { //true/false
   if ($state) $cmd="$fppmm -m {$_GET['plugin']} -o on";
   else $cmd="$fppmm -m {$_GET['plugin']} -o off";
   exec ($cmd,$output,$var);
-  //usleep(500000);
   $cur=getTestMode();
   if ($cur && $state) return true;
   if (!$cur && !$state) return true;
@@ -40,7 +39,9 @@ function setChannel($channel, $value=0) { //$channel (1-131072)    $value (0-255
 
 function updateMemoryMappedChannels() {
   global $confFile;
-  if (is_dir("/opt/fpp/plugins/{$_GET['plugin']}")) $cmd="perl /opt/fpp/plugins/{$_GET['plugin']}/memoryMap.pl";
+  global $settings;                                   
+  if (isset($settings['pluginDirectory'])) $cmd="perl {$settings['pluginDirectory']}/{$_GET['plugin']}/memoryMap.pl";
+  elseif (is_dir("/opt/fpp/plugins/{$_GET['plugin']}")) $cmd="perl /opt/fpp/plugins/{$_GET['plugin']}/memoryMap.pl";
   elseif (is_dir("/home/pi/media/plugins/{$_GET['plugin']}")) $cmd="perl /home/pi/media/plugins/{$_GET['plugin']}/memoryMap.pl";
   else return false;
   exec($cmd,$output,$var);
