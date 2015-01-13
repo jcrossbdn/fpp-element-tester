@@ -10,7 +10,7 @@ This plugin allows you to load in your displays configuration and test elements 
 4) Enjoy the element testing functionality<br> 
 
 <h4>Known Limitations / Gotchas</h4>
-Channels are currently toggled by sending individual commands to each output in a group/element.  This can lead to long processing time when selecting elements/groups with numerous outputs.
+Any models that are active when a channel is being tested will be turned off and will have to be manually turned back on.
 
 <h4>Creating a CSV Configuration File</h4>
 1) Open Microsoft Excel, Open Office's Calc, or your favorite spreadsheet editor<br>
