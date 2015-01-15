@@ -25,7 +25,8 @@ When using this plugin to test any channels all existing overlay models that are
 4. Save the worksheet onto your computer as a CSV (Comma Seperated Values) document
 
 
-### Example Showing:
+### Example
+##### Showing:
 1. An 8 channel incandescent arch starting at channel 1 with white channels only in a group named Arch 1 inside a group named Arches
 2. A 3 pixel ornament starting at channel 9 with color order RGB assigned to a group named Ornaments as well as a group named Ornaments inside a group named Mega Tree
 3. A 4 channel DIYC Flood light starting at channel 18 with color order RGBW assigned to a group named Flood Lights
@@ -72,7 +73,7 @@ Mega Tree
   Ornaments
     Pixel 1 - (Red) (Green) (Blue) (White)
     Pixel 2 - (Red) (Green) (Blue) (White)
-    Pixel 3 - (Red) (Green) (Blue) (White
+    Pixel 3 - (Red) (Green) (Blue) (White)
 Flood Lights
   Flood 1 - (Red) (Green) (Blue) (White)
 Mood
