@@ -1,34 +1,33 @@
 <h3>FPP Element Tester</h3>
 <i>Plugin Version: <?php echo file_get_contents($settings['fppDir']."/plugins/{$_GET['plugin']}/version_fet"); ?></i><br>
 <br>
-This plugin allows you to load in your displays configuration and test elements based upon group memberships.
-
+This plugin allows you to load in your displays configuration and test elements based upon defined element group memberships.
 <h4>Getting Started</h4>
 1) Install the plugin<br>
+ &nbsp; &nbsp; &nbsp; manually greater than fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /home/pi/media/plugins/fpp-element-tester<br>
+ &nbsp; &nbsp; &nbsp; manually in fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /opt/fpp/plugins/fpp-element-tester<br>
 2) Navigate to the "Status/Control" menu and then the "Element Tester" option<br>
 3) Browse and upload your displays CSV configuration file (see below section on creating a CSV configuration file)<br>
-4) Enjoy the element testing functionality<br> 
-
+4) Enjoy the element testing functionality<br>
 <h4>Known Limitations / Gotchas</h4>
-Any models that are active when a channel is being tested will be turned off and will have to be manually turned back on.
-
+This plugin utilizes a pixel overlay model which is created automatically encompassing all channels in your display.<br>
+When using this plugin to test any channels all existing overlay models that are activated will be deactivated and will have to be manually reactivated once you are done with testing.<br>
 <h4>Creating a CSV Configuration File</h4>
 1) Open Microsoft Excel, Open Office's Calc, or your favorite spreadsheet editor<br>
 2) Create a worksheet with the column headers channel, name, color and group (you may enter as many group columns as you wish to have pixels/outputs assigned to multiple groups)<br>
-3) Starting from your lowest universe and channel number enter:<br> 
- <ul> the starting channel for the pixel or output channel in the channel column</ul>
- <ul> a short but descriptive name of the pixel or output channel in the name column</ul>
- <ul> the color channels and order for the pixel or output channel (valid values are R,G,B,W.  e.g. RGB or BRG or W or RGBW)</ul>
- <ul> a short group name if you want to group multiple channels into a group. Use a forward slash '/' to indicate multiple group levels</ul>
+3) Starting from your lowest universe and channel number enter:<br>
+<ul> the starting channel for the pixel or output channel in the channel column</ul>
+<ul> a short but descriptive name of the pixel or output channel in the name column</ul>
+<ul> the color channels and order for the pixel or output channel (valid values are R,G,B,W. e.g. RGB or BRG or W or RGBW) <i>Please ensure all channels assigned have a color identifier.</i></ul>
+<ul> a short group name if you want to group multiple channels into a group. Use a forward slash '/' to indicate multiple group levels</ul>
 4) Save the worksheet onto your computer as a CSV (Comma Seperated Values) document
-<br> 
+<br>
 example showing:
 <ul>An 8 channel incandescent arch starting at channel 1 with white channels only in a group named Arch 1 inside a group named Arches</ul>
 <ul>A 3 pixel ornament starting at channel 9 with color order RGB assigned to a group named Ornaments as well as a group named Ornaments inside a group named Mega Tree</ul>
 <ul>A 4 channel DIYC Flood light starting at channel 18 with color order RGBW assigned to a group named Flood Lights</ul>
-<ul>A 1 pixel snowflake starting at channel 22 with color order GRB assigned to group Snowflakes inside a group called Mood</ul> 
-<ul>A tune to sign starting at channel 25 with a single white channel not assigned to any groups (note that if you do not enter a group name then the name column will be used automatically</ul> 
-
+<ul>A 1 pixel snowflake starting at channel 22 with color order GRB assigned to group Snowflakes inside a group called Mood</ul>
+<ul>A tune to sign starting at channel 25 with a single white channel not assigned to any groups (note that if you do not enter a group name then the name column will be used automatically</ul>
 <table border=1><tr><th>channel</th><th>name</th><th>color</th><th>group</th><th>group</th></tr>
 <tr><td>1</td><td>Channel 1</td><td>W</td><td>Arches/Arch 1</td><td>&nbsp;</td></tr>
 <tr><td>2</td><td>Channel 2</td><td>W</td><td>Arches/Arch 1</td><td>&nbsp;</td></tr>
@@ -45,9 +44,7 @@ example showing:
 <tr><td>22</td><td>Snowflake 1</td><td>GRB</td><td>Mood</td><td>&nbsp;</td></tr>
 <tr><td>25</td><td>Tune To Sign</td><td>W</td><td>&nbsp;</td><td>&nbsp;</td></tr>
 </table>
-
 <br><br>
-
 The above example will generate the following tree inside of the plugin:<br>
 Arches<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Arch 1<br>
@@ -74,5 +71,4 @@ Mood<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Snowflake 1 &nbsp; (Red) (Green) (Blue) (White)<br>
 Tune To Sign<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Tune To Sign &nbsp; (White)<br>
-
 <br><br>
