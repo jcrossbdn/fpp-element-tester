@@ -10,18 +10,8 @@ This plugin allows you to load in your displays configuration and test elements 
 3) Browse and upload your displays CSV configuration file (see below section on creating a CSV configuration file)<br>
 4) Enjoy the element testing functionality<br>
 <h4>Known Limitations / Gotchas</h4>
-<<<<<<< HEAD
-<<<<<<< HEAD
 This plugin utilizes a pixel overlay model which is created automatically encompassing all channels in your display.<br>
 When using this plugin to test any channels all existing overlay models that are activated will be deactivated and will have to be manually reactivated once you are done with testing.<br>
-=======
-Any models that are active when a channel is being tested will be turned off and will have to be manually turned back on.
-
->>>>>>> origin/master
-=======
-This plugin utilizes a pixel overlay model which is created automatically encompassing all channels in your display.<br>
-When using this plugin to test any channels all existing overlay models that are activated will be deactivated and will have to be manually reactivated once you are done with testing.<br>
->>>>>>> d24ff388fc137fb278da02be0b125d8aacc8f85f
 <h4>Creating a CSV Configuration File</h4>
 1) Open Microsoft Excel, Open Office's Calc, or your favorite spreadsheet editor<br>
 2) Create a worksheet with the column headers channel, name, color and group (you may enter as many group columns as you wish to have pixels/outputs assigned to multiple groups)<br>
@@ -81,12 +71,4 @@ Mood<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Snowflake 1 &nbsp; (Red) (Green) (Blue) (White)<br>
 Tune To Sign<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Tune To Sign &nbsp; (White)<br>
-<<<<<<< HEAD
-<<<<<<< HEAD
 <br><br>
-=======
-
-=======
->>>>>>> d24ff388fc137fb278da02be0b125d8aacc8f85f
-<br><br>
->>>>>>> origin/master
