@@ -3,9 +3,10 @@
 This plugin allows you to load in your displays configuration and test elements based upon defined element group memberships.
 
 ### Known limitations / Gotchas
-This plugin utilizes a pixel overlay model which is created automatically encompassing all channels in your display.
-When using this plugin to test any channels all existing overlay models that are activated will be deactivated and will have to be manually reactivated once you are done with testing.
-
+  - This plugin utilizes a pixel overlay model which is created automatically encompassing all channels in your display.
+  - When using this plugin to test any channels all existing overlay models that are activated will be deactivated and will have to be manually reactivated once you are done with testing.
+  - Currently a CSV file must be created manually. We will be working on getting export data or build converters into the plugin so that this manual step is no longer required.
+  
 ### Getting Started
 1. Install the plugin
    - manually greater than fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /home/pi/media/plugins/fpp-element-tester
