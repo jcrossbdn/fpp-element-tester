@@ -8,8 +8,8 @@ When using this plugin to test any channels all existing overlay models that are
 
 ### Getting Started
 1. Install the plugin
-   manually greater than fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /home/pi/media/plugins/fpp-element-tester
-   manually in fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /opt/fpp/plugins/fpp-element-tester
+    manually greater than fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /home/pi/media/plugins/fpp-element-tester
+    manually in fpp v1.0: from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /opt/fpp/plugins/fpp-element-tester
 2. Navigate to the "Status/Control" menu and then the "Element Tester" option. If you dont see this option then refresh your browser window.
 3. Browse and upload your displays CSV configuration file (see below section on creating a CSV configuration file)
 4. Enjoy the element testing functionality 
