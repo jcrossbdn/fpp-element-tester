@@ -1,6 +1,6 @@
 # FPP Element Tester
 
-This plugin allows you to load in your displays configuration and test elements based upon defined element group memberships.
+This plugin allows you to load in your displays configuration and test elements based upon defined element group memberships.  See bottom of this help file for a real life screen shot of the user interface.
 
 ### Known limitations / Gotchas
   - This plugin utilizes a pixel overlay model which is created automatically encompassing all channels in your display.
@@ -49,7 +49,7 @@ This plugin allows you to load in your displays configuration and test elements 
 | 15      | Pixel 3      | RGB   | Ornaments     | Mega Tree/Ornaments |
 | 18      | DIYC Flood 1 | RGBW  | Flood Lights  |                     |
 | 22      | Snowflake 1  | GRB   | Mood          |                     |
-| 25      | Tune To Sign | W      |               |                     |
+| 25      | Tune To Sign | W     |               |                     |
 
 
 
@@ -82,3 +82,6 @@ Mood
 Tune To Sign
   Tune To Sign - (White)
 ```
+
+### Screen Shot showing a real life configuration
+![real life configuration](https://raw.github.com/jcrossbdn/fpp-element-tester/master/screenShot.jpg)
