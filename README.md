@@ -83,6 +83,19 @@ Tune To Sign
   Tune To Sign - (White)
 ```
 
+
+
+
 ### Screen Shot showing a real life configuration
 ##### using the provided example configuration file JasonsDisplaySample.csv
+
+##### This is the top level (Home) screen for the plugin
 ![real life configuration](https://raw.github.com/jcrossbdn/fpp-element-tester/master/screenShot.jpg)
+
+
+##### Here we are looking into the mega tree. We are now looking at the 16 strings
+![real life configuration](https://raw.github.com/jcrossbdn/fpp-element-tester/master/screenShot2.jpg)
+
+
+##### Here we are looking into an individual string on the mega tree. This is showing the 25 pixels in the string.
+![real life configuration](https://raw.github.com/jcrossbdn/fpp-element-tester/master/screenShot3.jpg)
