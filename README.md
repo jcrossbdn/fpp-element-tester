@@ -17,7 +17,7 @@ This plugin allows you to load in your displays configuration and test elements 
 
 ### Creating a CSV Configuration File
 1. Open Microsoft Excel, Open Office's Calc, or your favorite spreadsheet editor
-2. Create a worksheet with the column headers channel, name, color and group (you may enter as many group columns as you wish to have pixels/outputs assigned to multiple groups)
+2. Create a worksheet and enter column headers on row 1 with the following: channel, name, color and group (you may enter as many group columns as you wish to have pixels/outputs assigned to multiple groups)
 3. Starting from your lowest universe and channel number enter: 
    - the starting channel for the pixel or output channel in the channel column
    - a short but descriptive name of the pixel or output channel in the name column
