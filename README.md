@@ -84,4 +84,5 @@ Tune To Sign
 ```
 
 ### Screen Shot showing a real life configuration
+##### using the provided example configuration file JasonsDisplaySample.csv
 ![real life configuration](https://raw.github.com/jcrossbdn/fpp-element-tester/master/screenShot.jpg)
