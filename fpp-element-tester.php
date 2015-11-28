@@ -1,7 +1,6 @@
 <?php
 error_reporting(E_ERROR);
 ini_set('display_errors', true);
-include 'functions.php';
 
 if (isset($_POST['fpp-submit']) && isset($_FILES['fpp-config-file'])) {
   $ext=strtolower(substr($_FILES['fpp-config-file']['name'],-3));

@@ -7,21 +7,18 @@ require_once $settings['fppDir'].'/www/common.php';
 
 function getTestMode() {
   global $fppmm;
-  $cmd="$fppmm -m {$_GET['plugin']} -t status";
+  $cmd="$fppmm -m {$_GET['plugin']}";
   exec ($cmd,$output,$var);
-  //preg_match("/Status.*/",$output[2],$match);
-  //if (strstr($match[0],"Test mode is currently On.")!==false) return true;
-  //elseif (strstr($match[0],"Test mode is currently Off.")!==false) return false;
-  if (strstr($output[0],"Test mode is currently On.")!==false) return true;
-  elseif (strstr($output[0],"Test mode is currently Off.")!==false) return false;
+  preg_match("/Status.*/",$output[2],$match);
+  if (strstr($match[0],": Active")!==false) return true;
+  elseif (strstr($match[0],": Idle")!==false) return false;
   else return false;
 }
 
 function setTestMode($state=false) { //true/false
   global $fppmm;
-  if ($state) $cmd="$fppmm -m {$_GET['plugin']} -t on";
-  else $cmd="$fppmm -m {$_GET['plugin']} -t off";
-  file_put_contents('/home/fpp/media/temp.txt',$cmd);
+  if ($state) $cmd="$fppmm -m {$_GET['plugin']} -o on";
+  else $cmd="$fppmm -m {$_GET['plugin']} -o off";
   exec ($cmd,$output,$var);
   $cur=getTestMode();
   if ($cur && $state) return true;
