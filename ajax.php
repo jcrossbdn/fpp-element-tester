@@ -16,6 +16,7 @@ else {
   echo "Please upload your Displays configuration file (in CSV format) in the Element Configuration Section above to use this plugin.";
   exit;
 }
+
 if ($xml===false)  {
   echo "ERROR: Malformed Plugin Configuration File.";
   echo "<br><i>$xmlFile</i>";
