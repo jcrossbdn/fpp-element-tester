@@ -12,7 +12,7 @@ my $blk = $fppmm->GetBlockInfo($name);
 
 $fppmm->SetBlockColor($blk,0,0,0);
 
-$file = '/home/pi/media/config/plugin.fpp-element-tester.outputValues';
+$file = '/home/fpp/media/config/plugin.fpp-element-tester.outputValues';
 open (F, $file) || die ("Could not open $file!");
 
 while ($line = <F>)
