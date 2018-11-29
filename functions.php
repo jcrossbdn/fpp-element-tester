@@ -1,13 +1,16 @@
 <?php
-$fppmm=$settings['fppDir'].'/bin/fppmm';
+$fppmm=$settings['fppDir'].'/bin.pi/fppmm';
 $confFile=$_GET['plugin'].".outputValues"; //config file for channel test values
+$memMapStatus=$settings['configDirectory']."/plugin.{$_GET['plugin']}.memoryMapStatus";
 
 require_once $settings['fppDir'].'/www/common.php';
 
 
 function getTestMode() {
   global $fppmm;
-  $cmd="$fppmm -m {$_GET['plugin']} -t status";
+  //$cmd="$fppmm -m {$_GET['plugin']} -t status";
+  $cmd="$fppmm -t status";
+  //echo $cmd."<br>";
   exec ($cmd,$output,$var);
   //preg_match("/Status.*/",$output[2],$match);
   //if (strstr($match[0],"Test mode is currently On.")!==false) return true;
@@ -19,8 +22,51 @@ function getTestMode() {
 
 function setTestMode($state=false) { //true/false
   global $fppmm;
-  if ($state) $cmd="$fppmm -m {$_GET['plugin']} -t on";
-  else $cmd="$fppmm -m {$_GET['plugin']} -t off";
+  global $memMapStatus;
+  global $settings;
+  
+  if ($state===true) { //get currently active models and save so we can turn them back on later
+    $mmf=file_get_contents('/home/fpp/media/channelmemorymaps');
+    $map=false;
+    if (trim($mmf) != '') {
+      $lines=explode("\n",$mmf);
+      foreach ($lines as $cols) {
+        $output=false;
+        if (trim($cols) != '') {
+          $col=explode(",",$cols);
+          $cmd="$fppmm -m {$col[0]}";
+          exec($cmd,$output,$var);
+          if (strstr($output[2],": Idle")!==false) $map[$col[0]]=false;
+          else  {
+            $map[$col[0]]=true;
+            $cmd="$fppmm -m {$col[0]} -o off"; //turn off during our test
+            exec($cmd);
+          }
+        }
+      }
+    }
+    file_put_contents($memMapStatus, ($map !== false ? json_encode($map) : ""));
+  }
+  else { //if there were any models previously active then turn them back on now
+    $mmf=file_get_contents($memMapStatus);
+    if (trim($mmf) != '') {
+      $map=json_decode($mmf);
+      if (count($map)) {
+        foreach ($map as $model=>$value) {
+          if ($value===true) {
+            $cmd="$fppmm -m $model -o on";
+            exec($cmd);
+          }
+        }
+      }
+      file_put_contents($memMapStatus,''); //blank out the file
+    }
+  }
+  
+  //if ($state) $cmd="$fppmm -m {$_GET['plugin']} -t on";
+  //else $cmd="$fppmm -m {$_GET['plugin']} -t off";
+  if ($state) $cmd="$fppmm -t on";
+  else $cmd="$fppmm -t off";
   exec ($cmd,$output,$var);
   $cur=getTestMode();
   if ($cur && $state) return true;
@@ -402,18 +448,22 @@ function convertCSVtoXML($files) { //$files is $_FILES
         $foundGroup=false;
         foreach ($header['group'] as $key=>$grpCol) {
           $groupName=trim($cols[$grpCol]);
-         if ($groupName != "") {
-            $group[$groupName][$oid]=true;
+          if ($groupName != "") {
+            //$group[$groupName][$oid]=true;
+            $groups[$groupName][$oid]=true;
             $foundGroup=true;
           }
         }
-        if (!$foundGroup) $group[$name][$oid]=true;
-
-        $groups=array_merge_recursive($groups,$group);
-        unset($group);
+        if (!$foundGroup) $groups[$name][$oid]=true;//$group[$name][$oid]=true;
+//        echo "<pre>"; var_dump($group); echo "<hr></pre>"; 
+        //$groups=array_merge_recursive($groups,$group);
+        //echo "<pre>"; var_dump($groups); echo "<hr></pre>";
+        //unset($group);
         $oid++;
       }
     }
+    //exit;
+    //echo "<pre>"; var_dump($groups); exit;
     
     //write output data to file
     $xmlOutputs="";
@@ -443,12 +493,14 @@ function convertCSVtoXML($files) { //$files is $_FILES
     file_put_contents($xmlFile,$xmlOutput,FILE_APPEND);
     
     //change OID arrays to a CSV
+    //echo "<pre>"; var_dump($groups); exit;
     foreach ($groups as $group=>$data1) {
       if (trim($group) != "") {
         $oidStr="";
         foreach ($data1 as $oid=>$nul) {
           $oidStr.="$oid,";
         }       
+        //echo "<pre>$oidStr<br></pre>";
         $groups[$group]=substr($oidStr,0,-1);
       }  
       else unset($groups[$group]);

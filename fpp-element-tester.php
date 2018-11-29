@@ -1,15 +1,18 @@
 <?php
+//echo "<pre>"; var_dump($settings); 
+//var_dump(file_get_contents($settings['outputProcessorsFile']));
+//exit;
 error_reporting(E_ERROR);
 ini_set('display_errors', true);
-include 'functions.php';
+include_once 'functions.php';
 
-if (isset($_POST['fpp-submit']) && isset($_FILES['fpp-config-file'])) {
-  $ext=strtolower(substr($_FILES['fpp-config-file']['name'],-3));
+if (isset($_POST['fpp-element-tester-submit']) && isset($_FILES['fpp-element-tester-config-file'])) {
+  $ext=strtolower(substr($_FILES['fpp-element-tester-config-file']['name'],-3));
   if ($ext != "csv")
     echo "Error uploading Channel Configuration File.  The file must be a CSV.";
   else {
-    include 'functions.php';
-    $ret=convertCSVtoXML($_FILES['fpp-config-file']);
+    //include 'functions.php';
+    $ret=convertCSVtoXML($_FILES['fpp-element-tester-config-file']);
     if ($ret['csv']===true) {
       $jGrowl[]="XML File Created Successfully.";
     }
@@ -76,7 +79,7 @@ if (isset($jGrowl)) {
 <div id="elements" class="settings">
 <fieldset>
 <legend>Element Configuration</legend>
-<form method='post' enctype='multipart/form-data'><input type='file' name='fpp-config-file'><input type='submit' value='Upload' name='fpp-submit'></form>
+<form method='post' enctype='multipart/form-data'><input type='file' name='fpp-element-tester-config-file'><input type='submit' value='Upload' name='fpp-element-tester-submit'></form>
 </fieldset>
 </div>
 <br>

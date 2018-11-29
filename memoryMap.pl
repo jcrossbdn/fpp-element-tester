@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use lib "/opt/fpp/lib/perl";
+use lib "/opt/fpp/lib/perl/";
 use FPP::MemoryMap;
 
 my $name = "fpp-element-tester";
