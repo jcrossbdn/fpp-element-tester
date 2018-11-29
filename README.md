@@ -8,7 +8,7 @@ This plugin allows you to load in your displays configuration and test elements 
   - Currently a CSV file must be created manually. We will be working on getting export data or build converters into the plugin so that this manual step is no longer required.
   
 ### Getting Started
-1. Install the plugin (v1.6)
+1. Install the plugin (v2.5)
    - from the command line type: sudo git clone git://github.com/jcrossbdn/fpp-element-tester /home/fpp/media/plugins/fpp-element-tester
 2. Navigate to the "Status/Control" menu and then the "Element Tester" option. If you dont see this option then refresh your browser window.
 3. Browse and upload your displays CSV configuration file (see below section on creating a CSV configuration file)
