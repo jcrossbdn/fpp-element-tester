@@ -1,3 +1,5 @@
+*NOTE this plugin was designed when I was using Vixen as my sequencer.  It has not been maintained since 2019 and is not guaranteed to work on fpp 3.
+
 # FPP Element Tester
 
 This plugin allows you to load in your displays configuration and test elements based upon defined element group memberships.  See bottom of this help file for a real life screen shot of the user interface.
